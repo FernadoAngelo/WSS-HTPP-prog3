@@ -10,7 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 
 type  mensageType = {
-  clientID;
+  clientID: string;
   menssage: string;
 }
 
@@ -24,7 +24,7 @@ type  mensageType = {
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  mensageArr: mensageType[] = [];
+  private mensageArr: { payload: string, clientId: string }[] = [];
 
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('AppGateway');
@@ -32,10 +32,7 @@ export class AppGateway
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, payload: string): void {
     console.log('msgToServer', payload);
-    let mensagePrep: mensageType;
-    mensagePrep.clientID = client.id ?? 'null';
-    mensagePrep.menssage = payload;
-    this.mensageArr.push(mensagePrep);
+    this.mensageArr.push({payload, clientId: client.id})
     this.server.emit('msgToClient', payload, client.id);
   }
 
@@ -45,8 +42,8 @@ export class AppGateway
 
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
-    console.log('msgToServer', this.mensageArr);
-    this.server.emit('previusMSG', this.mensageArr, client.id);
+    console.log('previusMsg', this.mensageArr);
+    this.server.emit('previusMsg', this.mensageArr);
   }
 
   handleDisconnect(client: Socket) {

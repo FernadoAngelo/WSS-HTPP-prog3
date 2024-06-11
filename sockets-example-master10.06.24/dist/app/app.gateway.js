@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppGateway = void 0;
 const common_1 = require("@nestjs/common");
@@ -19,12 +20,8 @@ let AppGateway = class AppGateway {
         this.logger = new common_1.Logger('AppGateway');
     }
     handleMessage(client, payload) {
-        var _a;
         console.log('msgToServer', payload);
-        let mensagePrep;
-        mensagePrep.clientID = (_a = client.id) !== null && _a !== void 0 ? _a : 'null';
-        mensagePrep.menssage = payload;
-        this.mensageArr.push(mensagePrep);
+        this.mensageArr.push({ payload, clientId: client.id });
         this.server.emit('msgToClient', payload, client.id);
     }
     afterInit(server) {
@@ -32,8 +29,8 @@ let AppGateway = class AppGateway {
     }
     handleConnection(client) {
         this.logger.log(`Client connected: ${client.id}`);
-        console.log('msgToServer', this.mensageArr);
-        this.server.emit('previusMSG', this.mensageArr, client.id);
+        console.log('previusMsg', this.mensageArr);
+        this.server.emit('previusMsg', this.mensageArr);
     }
     handleDisconnect(client) {
         this.logger.log(`Client disconnected: ${client.id}`);
@@ -41,12 +38,12 @@ let AppGateway = class AppGateway {
 };
 __decorate([
     (0, websockets_1.WebSocketServer)(),
-    __metadata("design:type", socket_io_1.Server)
+    __metadata("design:type", typeof (_a = typeof socket_io_1.Server !== "undefined" && socket_io_1.Server) === "function" ? _a : Object)
 ], AppGateway.prototype, "server", void 0);
 __decorate([
     (0, websockets_1.SubscribeMessage)('msgToServer'),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket, String]),
+    __metadata("design:paramtypes", [typeof (_b = typeof socket_io_1.Socket !== "undefined" && socket_io_1.Socket) === "function" ? _b : Object, String]),
     __metadata("design:returntype", void 0)
 ], AppGateway.prototype, "handleMessage", null);
 AppGateway = __decorate([
